@@ -4,7 +4,7 @@
 
 ## Visión General
 
-### [Acceder a Tienda.IA](https://tiendawithia.vercel.app)**  
+### [Acceder a Tienda.IA](https://tiendawithia.vercel.app) 
 
 
 Tienda.IA redefine la experiencia de compra online mediante la integración profunda de **Inteligencia Artificial Generativa**. A diferencia de los e-commerce tradicionales, nuestra plataforma no solo muestra productos, sino que **entiende** lo que buscas.
