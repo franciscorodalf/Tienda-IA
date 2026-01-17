@@ -4,6 +4,9 @@
 
 ## Visión General
 
+### [Acceder a Tienda.IA](https://tiendawithia.vercel.app)**  
+
+
 Tienda.IA redefine la experiencia de compra online mediante la integración profunda de **Inteligencia Artificial Generativa**. A diferencia de los e-commerce tradicionales, nuestra plataforma no solo muestra productos, sino que **entiende** lo que buscas.
 
 El núcleo de Tienda.IA es "Alex", un agente de IA sofisticado que actúa como tu Personal Shopper, capaz de analizar tus intenciones, explicar tecnologías textiles y gestionar tu carrito de compras de forma autónoma.
