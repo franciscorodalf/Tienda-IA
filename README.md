@@ -1,92 +1,79 @@
 # TIENDA.IA | E-COMMERCE DE STREETWEAR
 
+![Inicio](resources/Start.png)
+
 ## Visión General
 
-Tienda.IA es una plataforma de comercio electrónico moderna impulsada por IA, diseñada para el futuro de la moda streetwear. Integra un Estilista de IA sofisticado ("Alex") directamente en la experiencia de compra, permitiendo a los usuarios recibir recomendaciones de atuendos personalizadas, detalles técnicos de productos y consejos de estilo en tiempo real.
+Tienda.IA redefine la experiencia de compra online mediante la integración profunda de **Inteligencia Artificial Generativa**. A diferencia de los e-commerce tradicionales, nuestra plataforma no solo muestra productos, sino que **entiende** lo que buscas.
 
-El proyecto enfatiza una estética minimalista y "anti-diseño" popular en la cultura moderna del streetwear (reminiscente de estilos como el de Ye o la moda industrial), enfocándose en imágenes crudas, tipografía audaz y una experiencia de usuario fluida.
+El núcleo de Tienda.IA es "Alex", un agente de IA sofisticado que actúa como tu Personal Shopper, capaz de analizar tus intenciones, explicar tecnologías textiles y gestionar tu carrito de compras de forma autónoma.
 
-## Características Principales
+## Potencia de la IA (Alex)
 
-### 1. Estilista Potenciado por IA (Alex)
-- **Integración**: Interfaz de chat flotante global disponible en toda la aplicación.
-- **Modelo**: Impulsado por Google Gemini 2.5 Flash para respuestas de alta velocidad y conscientes del contexto.
-- **Capacidades**: Puede buscar en el catálogo de productos, explicar detalles técnicos de las telas (GSM, ajuste) y proporcionar consejos de estilo.
-- **Comportamiento Inteligente**: Involucra automáticamente al usuario después de un breve retraso (una vez por sesión) para simular una experiencia personalizada en tienda.
+Alex no es un chatbot estándar con respuestas predefinidas. Es un modelo de lenguaje avanzado (LLM) con acceso a herramientas en tiempo real que le permiten interactuar con la base de datos de la tienda.
 
-### 2. Catálogo de Productos Moderno
-- **Categorías**: Sudaderas, Camisetas, Pantalones, Chaquetas, Zapatos y Accesorios.
-- **Filtrado**: Filtrado de categorías en tiempo real.
-- **Validación**: Lógica estricta de "Añadir al Carrito" que requiere que los usuarios seleccionen opciones específicas de Talla y Color antes de comprar.
+### ¿Qué puede hacer Alex?
 
-### 3. Editorial y Archivo
-- **Rico en Contenido**: Sección dedicada de "Archivo" con contenido editorial, diarios visuales y manifiestos.
-- **Estética**: Imágenes de alta calidad y diseño de maquetación que refuerza la identidad de la marca.
+1.  **Búsqueda Semántica e Intencional**:
+    *   No necesitas saber el nombre exacto del producto. Puedes decir: *"Busco algo para un evento tech underground"*.
+    *   Alex interpretará tu petición y buscará en el inventario productos que coincidan con ese *vibe*, estilo o necesidad técnica.
 
-### 4. Stack Técnico
-- **Framework**: Next.js 15 (App Router).
-- **Estilos**: Tailwind CSS para estilos de utilidad primero.
-- **Animaciones**: Framer Motion para transiciones e interacciones suaves.
-- **Gestión de Estado**: React Context API para la gestión global del carrito.
-- **Iconos**: Lucide React.
+2.  **Asesoramiento Técnico Experto**:
+    *   ¿Dudas sobre el material? Pregúntale: *"¿Qué significa 400gsm en la hoodie?"* o *"¿Estos pantalones sirven para la lluvia?"*.
+    *   Alex conoce las especificaciones de cada prenda y te explicará los beneficios de los tejidos, cortes y acabados.
 
-## Guía de Inicio
+3.  **Gestión Autónoma del Carrito**:
+    *   Alex tiene "manos". Puede añadir productos a tu carrito directamente.
+    *   **Validación Inteligente**: Si le dices *"Añade los pantalones paracaídas"*, Alex verificará si has especificado talla y color. Si no, te preguntará antes de actuar, asegurando que no cometas errores en tu pedido.
 
-Sigue estos pasos para configurar el proyecto localmente.
+4.  **Personalidad de Marca**:
+    *   Alex ha sido condicionado para comportarse como un experto en streetwear. Su tono es profesional pero relajado, alineado con la estética de la marca. No usa emojis y va directo al grano.
 
-### Prerrequisitos
-- Node.js 18.0.0 o superior
-- npm o yarn
-- Una Clave API de Google AI Studio
+![Producto](resources/producto.png)
 
-### Instalación
+## Características Adicionales
 
-1. **Clonar el repositorio**
-   ```bash
-   git clone https://github.com/tu-usuario/tienda-ia.git
-   cd tienda-ia
-   ```
+### Catálogo Moderno y Validado
+*   **Categorías**: Sudaderas, Camisetas, Pantalones, Chaquetas, Zapatos y Accesorios.
+*   **Filtrado Instantáneo**: Navegación fluida sin recargas.
+*   **Validación de Compra**: El botón "Añadir al Carrito" permanece bloqueado hasta que el usuario selecciona talla y color, evitando fricciones en el checkout.
 
-2. **Instalar dependencias**
-   ```bash
-   npm install
-   ```
+### Experiencia Editorial "Archivo"
+*   Una sección inmersiva que va más allá de la venta. "Archivo" presenta editoriales de moda, manifiestos de marca y diarios visuales, construyendo una narrativa sólida alrededor de los productos.
 
-3. **Configuración de Entorno**
-   **Advertencia de Seguridad**: Nunca confirmes tus claves API en el control de versiones.
-   
-   Crea un archivo `.env.local` en el directorio raíz:
-   ```bash
-   touch .env.local
-   ```
-   
-   Añade tu Clave API de Google Gemini:
-   ```env
-   GOOGLE_API_KEY=tu_clave_api_aqui
-   ```
+## Stack Técnico
 
-4. **Ejecutar el servidor de desarrollo**
-   ```bash
-   npm run dev
-   ```
+*   **Inteligencia Artificial**: Google Gemini 2.5 Flash (vía SDK `google-generative-ai`).
+*   **Frontend**: Next.js 15 (App Router) y React.
+*   **Estilos**: Tailwind CSS con diseño "utility-first".
+*   **Animaciones**: Framer Motion para micro-interacciones.
+*   **Estado**: React Context API.
 
-   Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver el resultado.
+## Seguridad y Configuración
 
-## Seguridad
+El proyecto sigue estrictos protocolos de seguridad para proteger las credenciales de IA:
+*   Las **API Keys** se gestionan exclusivamente en el servidor (`.env.local`).
+*   El sistema de prompts incluye directrices de seguridad para evitar que la IA se desvíe de su rol de vendedor.
 
-Este proyecto está configurado para aplicar mejores prácticas de seguridad:
-- **Variables de Entorno**: Todas las claves sensibles (Clave API de Google) se almacenan en `.env.local` y se accede a ellas solo en el lado del servidor a través de `process.env`.
-- **Git Ignoring**: El archivo `.gitignore` está configurado para excluir todos los archivos de entorno (`.env`, `.env.local`, etc.) de ser rastreados por Git.
-- **Sanitización**: El prompt del sistema de IA está estrictamente gobernado para evitar comportamientos no deseados.
+## Guía de Instalación
 
-## Estructura del Proyecto
+1.  **Clonar el repositorio**:
+    ```bash
+    git clone https://github.com/tu-usuario/tienda-ia.git
+    ```
+2.  **Instalar dependencias**:
+    ```bash
+    npm install
+    ```
+3.  **Configurar Variables de Entorno**:
+    Crea un archivo `.env.local` y añade tu clave:
+    ```env
+    GOOGLE_API_KEY=tu_clave_api_aqui
+    ```
+4.  **Desplegar**:
+    ```bash
+    npm run dev
+    ```
 
-- `/app`: Rutas principales de la aplicación (Inicio, Sobre Nosotros, Archivo).
-- `/components`: Componentes de UI reutilizables (FichaProducto, Chat, CajónCarrito).
-- `/context`: Proveedores de estado global (ContextoCarrito).
-- `/lib`: Funciones de utilidad y datos estáticos (catálogo de productos).
-- `/api`: Rutas API del lado del servidor para interacción con IA.
-
-## Licencia
-
-Este proyecto es de código abierto y está disponible bajo la Licencia MIT.
+---
+*Tienda.IA es un proyecto Open Source bajo licencia MIT.*
