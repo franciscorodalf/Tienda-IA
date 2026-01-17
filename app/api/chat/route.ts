@@ -90,16 +90,60 @@ function findProductByName(name: string) {
     return products.find(p => p.name.toLowerCase().includes(lowerName));
 }
 
-export async function POST(req: Request) {
-    try {
-        const body = await req.json();
-        const { history, message } = body;
+// --- FALLBACK LOGIC (LOCAL MODE) ---
+// Mimics the AI persona when the API is down or rate-limited
+async function fallbackHandler(message: string): Promise<{ text: string, products?: any[], cartAction?: any }> {
+    const lowerMsg = message.toLowerCase();
+    console.log(`⚠️ [Fallback] Processing locally: "${message}"`);
 
-        if (!process.env.GOOGLE_API_KEY) {
-            return NextResponse.json({ error: 'API Key not configured' }, { status: 500 });
+    // 1. Search Intent
+    if (lowerMsg.includes('busca') || lowerMsg.includes('tienes') || lowerMsg.includes('quiero') || lowerMsg.includes('muéstrame') || lowerMsg.includes('enseñame')) {
+        const products = await searchProducts(message); // Uses the same backend search logic
+
+        if (products.length > 0) {
+            return {
+                text: `**Modo Offline:** La conexión neuronal está inestable (API Quota), pero accedí al inventario local. He encontrado **${products.length}** prendas que encajan con tu vibe. Chequea abajo 👇`,
+                products: products
+            };
+        } else {
+            return {
+                text: `**Modo Offline:** No encontré nada en nuestra base de datos local para eso. Intenta ser más específico (ej: "hoodie negro", "oversized").`
+            };
         }
+    }
 
-        // Limpiamos el historial para evitar errores de formato
+    // 2. Help/Greeting Intent
+    if (lowerMsg.includes('hola') || lowerMsg.includes('buenas') || lowerMsg.includes('ayuda')) {
+        return {
+            text: `**System Reboot:** Mis servicios cognitivos están al máximo de capacidad (Rate Limited), pero sigo operativo en modo básico. \n\nPuedo **buscarte productos** si me dices qué necesitas (ej: "camisetas blancas").`
+        };
+    }
+
+    // 3. Default / Fallback
+    return {
+        text: `**Error de Conexión:** Mis neuronas están sobrecargadas ahora mismo (Google API Error). \n\nNo puedo procesar conversaciones complejas, pero si buscas ropa, simplemente escribe qué buscas y consultaré el inventario manualmente.`
+    };
+}
+
+export async function POST(req: Request) {
+    let body;
+    try {
+        body = await req.json();
+    } catch (e) {
+        return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+
+    const { history, message } = body;
+
+    // Fast Check: If no key, go straight to fallback
+    if (!process.env.GOOGLE_API_KEY) {
+        console.warn('⚠️ No GOOGLE_API_KEY found. Using Fallback mode.');
+        const fallbackResponse = await fallbackHandler(message);
+        return NextResponse.json(fallbackResponse);
+    }
+
+    try {
+        // ... (Existing AI Logic) ...
         const validHistory = history?.filter((msg: any) => msg.role === 'user' || msg.role === 'model') || [];
 
         const chat = model.startChat({
@@ -119,7 +163,6 @@ export async function POST(req: Request) {
         let matchedProducts: any[] = [];
         let cartAction = null;
 
-        // --- LÓGICA CRÍTICA ---
         if (functionCalls && functionCalls.length > 0) {
             // 1. La IA quiere usar una herramienta
             const call = functionCalls[0];
@@ -157,9 +200,6 @@ export async function POST(req: Request) {
                 const product = findProductByName(productName);
 
                 if (product) {
-                    // En lugar de añadirlo aquí (el backend no tiene contexto de carrito de cliente),
-                    // enviamos una señal al frontend para que LO añada.
-
                     cartAction = {
                         type: 'ADD',
                         product: product,
@@ -179,7 +219,6 @@ export async function POST(req: Request) {
                     finalResponseText = finalResult.response.text();
 
                 } else {
-                    // Producto no encontrado
                     const functionResponse = [
                         {
                             functionResponse: {
@@ -204,11 +243,11 @@ export async function POST(req: Request) {
         });
 
     } catch (error: any) {
-        console.error('❌ Error in chat route:', error);
-        return NextResponse.json({
-            error: 'Internal Server Error',
-            details: error.message || String(error),
-            stack: error.stack
-        }, { status: 500 });
+        // --- CATCH ERROR -> USE FALLBACK ---
+        console.error('❌ Error in chat route (switching to fallback):', error.message);
+
+        // Return a valid JSON response even on error
+        const fallbackResponse = await fallbackHandler(message);
+        return NextResponse.json(fallbackResponse);
     }
 }

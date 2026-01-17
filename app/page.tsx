@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { products, Product } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
+import { Navbar } from '@/components/Navbar';
 import { ProductModal } from '@/components/ProductModal';
 import { useCart } from '@/context/CartContext';
 import { motion } from 'framer-motion';
@@ -26,36 +27,8 @@ export default function Home() {
   return (
     <div className="min-h-full bg-[var(--background)] text-[var(--foreground)]">
 
-      {/* Header Minimalista */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--background)]/80 backdrop-blur-md border-b border-[var(--muted)] px-6 py-4">
-        <div className="flex items-center justify-between max-w-[1800px] mx-auto">
-          <div className="flex items-center gap-4">
-            <Menu className="w-6 h-6 lg:hidden" />
-            <span className="text-xl font-bold tracking-tighter uppercase font-[var(--font-display)]">TIENDA.IA</span>
-          </div>
-
-          <nav className="hidden lg:flex gap-8 text-sm uppercase tracking-widest font-bold text-gray-400">
-            <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Shop</Link>
-            <Link href="/about" className="hover:text-[var(--foreground)] transition-colors">About</Link>
-            <Link href="/archive" className="hover:text-[var(--foreground)] transition-colors">Archive</Link>
-          </nav>
-
-          <div className="flex items-center gap-6">
-            <Search className="w-5 h-5 cursor-pointer hover:text-gray-400 transition-colors" />
-            <button
-              className="relative cursor-pointer group p-1 hover:text-gray-400 transition-colors"
-              onClick={() => setIsCartOpen(true)}
-            >
-              <ShoppingBag className="w-5 h-5" />
-              {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 rounded-full text-[10px] flex items-center justify-center font-bold text-white">
-                  {itemCount}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* New Floating Navbar */}
+      <Navbar />
 
       {/* Hero Section */}
       <section className="relative h-[80vh] w-full flex items-center justify-center overflow-hidden pt-20">
