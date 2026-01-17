@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ProductCard } from './ProductCard';
 import { Product } from '@/lib/data';
@@ -11,11 +11,16 @@ const mockProduct: Product = {
     category: 'Test Category',
     stock: true,
     imageUrl: 'https://example.com/image.jpg',
+    colors: ['black', 'white'],
+    sizes: ['S', 'M', 'L', 'XL'],
+    features: ['cotton', 'polyester'],
 };
 
 describe('ProductCard Component', () => {
+    const mockOnClick = vi.fn();
+
     it('renders product information correctly', () => {
-        render(<ProductCard product={mockProduct} />);
+        render(<ProductCard product={mockProduct} onClick={mockOnClick} />);
 
         expect(screen.getByText('Test Product')).toBeDefined();
         expect(screen.getByText('$99.99')).toBeDefined();
@@ -24,7 +29,7 @@ describe('ProductCard Component', () => {
 
     it('shows out of stock badge when stock is false', () => {
         const outOfStockProduct = { ...mockProduct, stock: false };
-        render(<ProductCard product={outOfStockProduct} />);
-        expect(screen.getByText('Agotado')).toBeDefined();
+        render(<ProductCard product={outOfStockProduct} onClick={mockOnClick} />);
+        expect(screen.getByText('Sold Out')).toBeDefined();
     });
 });
