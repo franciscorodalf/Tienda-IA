@@ -1,13 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { products } from '@/lib/data';
+import { products, Product } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
-import { Search, ShoppingCart, Menu, X } from 'lucide-react';
+import { ProductModal } from '@/components/ProductModal';
+import { useCart } from '@/context/CartContext';
+import { motion } from 'framer-motion';
 import clsx from 'clsx';
+import { Menu, Search, ShoppingBag } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const { setIsCartOpen, itemCount } = useCart();
 
   // Extract unique categories
   const categories = ['Todos', ...Array.from(new Set(products.map((p) => p.category)))];
@@ -18,81 +24,158 @@ export default function Home() {
     : products.filter(p => p.category === selectedCategory);
 
   return (
-    <div className="min-h-full bg-white">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-gray-200 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+    <div className="min-h-full bg-[var(--background)] text-[var(--foreground)]">
+
+      {/* Header Minimalista */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--background)]/80 backdrop-blur-md border-b border-[var(--muted)] px-6 py-4">
+        <div className="flex items-center justify-between max-w-[1800px] mx-auto">
           <div className="flex items-center gap-4">
-            <button className="p-2 -ml-2 hover:bg-gray-100 rounded-full lg:hidden text-gray-900">
-              <Menu size={20} />
-            </button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center text-white font-bold text-xl">T</div>
-              <span className="text-xl font-bold tracking-tight text-gray-900">Tienda.IA</span>
-            </div>
+            <Menu className="w-6 h-6 lg:hidden" />
+            <span className="text-xl font-bold tracking-tighter uppercase font-[var(--font-display)]">TIENDA.IA</span>
           </div>
 
-          <div className="flex-1 max-w-md mx-8 hidden md:block">
-            <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-black transition-colors" size={18} />
-              <input
-                type="text"
-                placeholder="Buscar productos..."
-                className="w-full bg-gray-100 border-none rounded-full py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-black/10 transition-all outline-none text-gray-900 placeholder:text-gray-500 font-medium"
-              />
-            </div>
-          </div>
+          <nav className="hidden lg:flex gap-8 text-sm uppercase tracking-widest font-bold text-gray-400">
+            <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Shop</Link>
+            <Link href="/about" className="hover:text-[var(--foreground)] transition-colors">About</Link>
+            <Link href="/archive" className="hover:text-[var(--foreground)] transition-colors">Archive</Link>
+          </nav>
 
-          <div className="flex items-center gap-2">
-            <button className="p-2 hover:bg-gray-100 rounded-full relative text-gray-900">
-              <ShoppingCart size={20} />
-              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-black rounded-full border-2 border-white"></span>
+          <div className="flex items-center gap-6">
+            <Search className="w-5 h-5 cursor-pointer hover:text-gray-400 transition-colors" />
+            <button
+              className="relative cursor-pointer group p-1 hover:text-gray-400 transition-colors"
+              onClick={() => setIsCartOpen(true)}
+            >
+              <ShoppingBag className="w-5 h-5" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 rounded-full text-[10px] flex items-center justify-center font-bold text-white">
+                  {itemCount}
+                </span>
+              )}
             </button>
-            <div className="w-8 h-8 bg-gray-200 rounded-full overflow-hidden border border-gray-300">
-              <img src="https://ui-avatars.com/api/?name=User&background=random" alt="User" />
-            </div>
           </div>
         </div>
       </header>
 
-      {/* Hero / Banner */}
-      <div className="px-6 py-8 max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Novedades</h1>
-          <p className="text-gray-700 font-medium">Descubre las últimas tendencias de la temporada.</p>
+      {/* Hero Section */}
+      <section className="relative h-[80vh] w-full flex items-center justify-center overflow-hidden pt-20">
+        <div className="absolute inset-0 z-0">
+          {/* Abstract/Dark Video or Image Background */}
+          <div className="w-full h-full bg-neutral-900 bg-[url('https://images.unsplash.com/photo-1594968155916-2f7823e2006e?q=80&w=2600&auto=format&fit=crop')] bg-cover bg-center grayscale opacity-40"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[var(--background)] to-transparent"></div>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex overflow-x-auto pb-6 gap-2 no-scrollbar">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              className={clsx(
-                "px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all",
-                selectedCategory === cat
-                  ? "bg-black text-white shadow-md"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              )}
-            >
-              {cat}
-            </button>
+        <div className="relative z-10 text-center flex flex-col items-center gap-6 px-4">
+          <motion.h1
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            className="text-6xl md:text-9xl font-black uppercase tracking-tighter leading-none"
+          >
+            Chaos<br />Theory
+          </motion.h1>
+          <motion.p
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-sm md:text-lg uppercase tracking-[0.3em] text-gray-400 max-w-md"
+          >
+            Fall / Winter 2026 Collection
+          </motion.p>
+          <motion.button
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-8 bg-white text-black px-10 py-4 uppercase font-bold tracking-widest text-sm hover:scale-105 transition-transform"
+          >
+            Shop Now
+          </motion.button>
+        </div>
+      </section>
+
+      {/* Marquee */}
+      <div className="bg-white text-black py-3 overflow-hidden whitespace-nowrap border-y border-black">
+        <motion.div
+          animate={{ x: [0, -1000] }}
+          transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
+          className="flex gap-12 text-6xl font-black uppercase tracking-tighter opacity-80"
+        >
+          {Array(10).fill("New Drop Available Now • ").map((text, i) => (
+            <span key={i}>{text}</span>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Filters & Grid */}
+      <main className="max-w-[1800px] mx-auto px-6 py-20">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+          <div>
+            <h2 className="text-4xl font-bold uppercase tracking-tighter mb-2">Inventory</h2>
+            <p className="text-gray-500 uppercase tracking-widest text-xs">Only limited pieces available</p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={clsx(
+                  "px-4 py-2 text-xs font-bold uppercase tracking-wider border transition-all",
+                  selectedCategory === cat
+                    ? "bg-white text-black border-white"
+                    : "bg-transparent text-gray-500 border-gray-800 hover:border-gray-600 hover:text-white"
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
+          {filteredProducts.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onClick={setSelectedProduct}
+            />
           ))}
         </div>
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-20">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))
-          ) : (
-            <div className="col-span-full py-20 text-center text-gray-500">
-              <p>No se encontraron productos en esta categoría.</p>
+        {filteredProducts.length === 0 && (
+          <div className="py-20 text-center text-gray-600 uppercase tracking-widest">
+            No items found in this category
+          </div>
+        )}
+      </main>
+
+      <footer className="border-t border-[var(--muted)] py-20 px-6">
+        <div className="max-w-[1800px] mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
+          <div>
+            <h3 className="text-2xl font-bold uppercase tracking-tighter mb-4">Tienda.IA</h3>
+            <p className="text-gray-500 text-sm max-w-xs">Futuristic streetwear powered by artificial intelligence. Redefining digital commerce.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-12 text-sm uppercase tracking-wide text-gray-500">
+            <div className="flex flex-col gap-4">
+              <a href="#" className="hover:text-white">Instagram</a>
+              <a href="#" className="hover:text-white">TikTok</a>
+              <a href="#" className="hover:text-white">Twitter</a>
             </div>
-          )}
+            <div className="flex flex-col gap-4">
+              <a href="#" className="hover:text-white">Shipping</a>
+              <a href="#" className="hover:text-white">Returns</a>
+              <a href="#" className="hover:text-white">FAQ</a>
+            </div>
+          </div>
         </div>
-      </div>
+      </footer>
+
+      {/* Product Modal */}
+      <ProductModal
+        product={selectedProduct}
+        isOpen={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
     </div>
   );
 }

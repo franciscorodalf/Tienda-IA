@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2 } from 'lucide-react';
+import { Send, Bot, User, Loader2, MessageSquare, X, Minimize2 } from 'lucide-react';
 import { Product } from '@/lib/data';
 import { ProductModal } from './ProductModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCart } from '@/context/CartContext';
 
 interface Message {
     role: 'user' | 'model';
@@ -13,24 +14,43 @@ interface Message {
 }
 
 export default function Chat() {
+    const [isOpen, setIsOpen] = useState(false);
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([
         {
             role: 'model',
-            text: "¡Hola! Soy tu Personal Shopper con IA. Puedo ayudarte a encontrar productos, verificar stock o darte consejos de moda. Prueba buscando 'chaquetas' o 'algo para el verano'.",
+            text: "Alex aquí. ¿Buscas algo distorsionado, boxy o simplemente quieres mejorar tu armario?",
         },
     ]);
     const [isLoading, setIsLoading] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    const [error, setError] = useState<string | null>(null);
+
+    const { addItem, setIsCartOpen } = useCart();
+
+    // Auto-open logic: Runs once per session
+    useEffect(() => {
+        const hasOpened = sessionStorage.getItem('chatHasOpened');
+        if (!hasOpened) {
+            const timer = setTimeout(() => {
+                setIsOpen(true);
+                sessionStorage.setItem('chatHasOpened', 'true');
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, []);
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
+        if (isOpen) {
+            scrollToBottom();
+        }
+    }, [messages, isOpen]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,13 +60,12 @@ export default function Chat() {
         setMessages((prev) => [...prev, userMessage]);
         setInput('');
         setIsLoading(true);
+        setError(null); // Reset error on new submission
 
         try {
-            // Prepare history for API (simplified)
-            // Filter out messages to ensure valid history for Gemini (starts with user)
             const history = messages
                 .filter(m => m.role === 'user' || m.role === 'model')
-                .slice(1) // Skip the initial welcome message from model
+                .slice(1)
                 .map(m => ({
                     role: m.role === 'user' ? 'user' : 'model',
                     parts: [{ text: m.text }]
@@ -65,6 +84,13 @@ export default function Chat() {
 
             if (data.error) {
                 throw new Error(data.error);
+            }
+
+            // Handle Cart Action from AI
+            if (data.cartAction && data.cartAction.type === 'ADD') {
+                const { product, size, color } = data.cartAction;
+                addItem(product, size, color);
+                setIsCartOpen(true); // Open drawer to show it worked
             }
 
             const aiMessage: Message = {
@@ -87,105 +113,138 @@ export default function Chat() {
 
     return (
         <>
-            <div className="flex flex-col h-full bg-gray-50 font-sans">
-                {/* Chat Header */}
-                <div className="p-4 bg-white border-b border-gray-200 flex items-center gap-3 shadow-sm z-10">
-                    <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center text-white">
-                        <Bot size={18} />
-                    </div>
-                    <div>
-                        <h2 className="font-bold text-sm text-gray-900">AI Stylist</h2>
-                        <p className="text-xs text-green-600 font-medium flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                            En línea
-                        </p>
-                    </div>
-                </div>
+            {/* Floating Toggle Button */}
+            {!isOpen && (
+                <motion.button
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setIsOpen(true)}
+                    className="fixed bottom-6 right-6 z-40 bg-[var(--foreground)] text-[var(--background)] p-4 rounded-full shadow-2xl flex items-center gap-2 border border-[var(--background)]"
+                >
+                    <Bot size={24} />
+                    <span className="font-bold uppercase tracking-wider text-xs pr-1">Ask Alex</span>
+                </motion.button>
+            )}
 
-                {/* Messages Area */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-6">
-                    {messages.map((msg, idx) => (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            key={idx}
-                            className={`flex items-start gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
-                        >
-                            <div
-                                className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === 'user' ? 'bg-gray-200 text-gray-700' : 'bg-black text-white'
-                                    }`}
-                            >
-                                {msg.role === 'user' ? <User size={16} /> : <Bot size={16} />}
-                            </div>
-
-                            <div className={`flex flex-col max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
-                                <div
-                                    className={`p-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === 'user'
-                                            ? 'bg-black text-white rounded-tr-none'
-                                            : 'bg-white text-gray-900 border border-gray-200 rounded-tl-none font-medium'
-                                        }`}
-                                >
-                                    {msg.text}
+            {/* Chat Window */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 100, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 100, scale: 0.95 }}
+                        className="fixed bottom-6 right-6 z-40 w-full max-w-sm h-[600px] max-h-[80vh] bg-[var(--background)] border border-[var(--muted)] shadow-2xl flex flex-col font-sans"
+                    >
+                        {/* Chat Header */}
+                        <div className="p-4 border-b border-[var(--muted)] flex items-center justify-between shadow-sm z-10 bg-[var(--background)]">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-[var(--foreground)] rounded-full flex items-center justify-center text-[var(--background)]">
+                                    <Bot size={18} />
                                 </div>
-
-                                {/* Render Products if available */}
-                                {msg.products && msg.products.length > 0 && (
-                                    <div className="mt-3 grid gap-2 w-full">
-                                        {msg.products.map((product) => (
-                                            <div
-                                                key={product.id}
-                                                onClick={() => setSelectedProduct(product)}
-                                                className="bg-white p-2 rounded-xl border border-gray-200 hover:border-black cursor-pointer transition-all flex gap-3 items-center group shadow-sm"
-                                            >
-                                                <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                                                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h4 className="text-xs font-bold text-gray-900 truncate group-hover:text-black">{product.name}</h4>
-                                                    <span className="text-xs text-gray-700 font-medium">${product.price}</span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                <div>
+                                    <h2 className="font-bold text-sm text-[var(--foreground)] uppercase tracking-wider">Alex / AI Stylist</h2>
+                                    <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                                        Online
+                                    </p>
+                                </div>
                             </div>
-                        </motion.div>
-                    ))}
-
-                    {isLoading && (
-                        <div className="flex items-start gap-2">
-                            <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center flex-shrink-0">
-                                <Bot size={16} />
-                            </div>
-                            <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm">
-                                <Loader2 size={16} className="animate-spin text-gray-400" />
-                            </div>
+                            <button
+                                onClick={() => setIsOpen(false)}
+                                className="p-2 hover:bg-[var(--muted)] rounded-full transition-colors"
+                            >
+                                <Minimize2 size={18} />
+                            </button>
                         </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
 
-                {/* Input Area */}
-                <div className="p-4 bg-white border-t border-gray-200">
-                    <form onSubmit={handleSubmit} className="relative">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder="Escribe un mensaje..."
-                            disabled={isLoading}
-                            className="w-full pl-4 pr-12 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gray-50 focus:bg-white text-gray-900"
-                        />
-                        <button
-                            type="submit"
-                            disabled={isLoading || !input.trim()}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <Send size={16} />
-                        </button>
-                    </form>
-                </div>
-            </div>
+                        {/* Messages Area */}
+                        <div className="flex-1 overflow-y-auto p-4 space-y-6 scrollbar-hide">
+                            {messages.map((msg, idx) => (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    key={idx}
+                                    className={`flex items-start gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                                >
+                                    <div
+                                        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border ${msg.role === 'user' ? 'bg-transparent border-[var(--muted)] text-[var(--foreground)]' : 'bg-[var(--foreground)] text-[var(--background)] border-transparent'
+                                            }`}
+                                    >
+                                        {msg.role === 'user' ? <User size={14} /> : <Bot size={14} />}
+                                    </div>
+
+                                    <div className={`flex flex-col max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                                        <div
+                                            className={`p-3 text-sm leading-relaxed ${msg.role === 'user'
+                                                ? 'bg-[var(--muted)] text-[var(--foreground)]'
+                                                : 'bg-transparent text-[var(--foreground)] border border-[var(--muted)]'
+                                                }`}
+                                        >
+                                            {msg.text}
+                                        </div>
+
+                                        {/* Render Products if available */}
+                                        {msg.products && msg.products.length > 0 && (
+                                            <div className="mt-3 grid gap-2 w-full">
+                                                {msg.products.map((product) => (
+                                                    <div
+                                                        key={product.id}
+                                                        onClick={() => setSelectedProduct(product)}
+                                                        className="bg-[var(--muted)]/50 p-2 border border-transparent hover:border-[var(--foreground)] cursor-pointer transition-all flex gap-3 items-center group"
+                                                    >
+                                                        <div className="w-12 h-12 bg-gray-800 overflow-hidden flex-shrink-0">
+                                                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <h4 className="text-xs font-bold text-[var(--foreground)] truncate uppercase">{product.name}</h4>
+                                                            <span className="text-[10px] text-gray-400 font-mono">${product.price}</span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.div>
+                            ))}
+
+                            {isLoading && (
+                                <div className="flex items-start gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-[var(--foreground)] text-[var(--background)] flex items-center justify-center flex-shrink-0">
+                                        <Bot size={14} />
+                                    </div>
+                                    <div className="bg-transparent p-3 border border-[var(--muted)]">
+                                        <Loader2 size={14} className="animate-spin text-[var(--foreground)]" />
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
+
+                        {/* Input Area */}
+                        <div className="p-4 border-t border-[var(--muted)] bg-[var(--background)]">
+                            <form onSubmit={handleSubmit} className="relative">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    placeholder="Mensaje..."
+                                    disabled={isLoading}
+                                    className="w-full pl-4 pr-12 py-3 bg-[var(--muted)]/30 border border-[var(--muted)] focus:outline-none focus:border-[var(--foreground)] text-sm transition-all text-[var(--foreground)] placeholder:text-gray-600 rounded-none tracking-wide"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isLoading || !input.trim()}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[var(--foreground)] hover:text-gray-300 transition-colors disabled:opacity-50"
+                                >
+                                    <Send size={16} />
+                                </button>
+                            </form>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             <ProductModal
                 product={selectedProduct}

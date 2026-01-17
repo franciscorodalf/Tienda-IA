@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
+
+import { CartProvider } from '@/context/CartContext';
+import { CartDrawer } from '@/components/CartDrawer';
 import Chat from '@/components/Chat';
 
-const inter = Inter({ subsets: ['latin'] });
-
 export const metadata: Metadata = {
-  title: 'Tienda IA Hybrid Store',
-  description: 'AI Powered Shopping Experience',
+  title: 'TIENDA.IA | STREETWEAR',
+  description: 'Future of fashion commerce.',
 };
 
 export default function RootLayout({
@@ -17,18 +17,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <div className="flex h-screen overflow-hidden">
-          {/* Main Store Area - Left Panel */}
-          <main className="flex-1 overflow-y-auto bg-white">
-            {children}
-          </main>
-
-          {/* AI Assistant - Right Panel (Sticky Sidebar) */}
-          <aside className="w-[350px] lg:w-[400px] flex-shrink-0 h-full relative z-20 shadow-xl">
-            <Chat />
-          </aside>
-        </div>
+      <body className="antialiased bg-[var(--background)] text-[var(--foreground)] selection:bg-white selection:text-black">
+        <CartProvider>
+          {children}
+          <CartDrawer />
+          <Chat />
+        </CartProvider>
       </body>
     </html>
   );
