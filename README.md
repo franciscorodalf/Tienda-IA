@@ -15,7 +15,7 @@ Alex no es un chatbot estándar con respuestas predefinidas. Es un modelo de len
 ### ¿Qué puede hacer Alex?
 
 1.  **Búsqueda Semántica e Intencional**:
-    *   No necesitas saber el nombre exacto del producto. Puedes decir: *"Busco algo para un evento tech underground"*.
+    *   No necesitas saber el nombre exacto del producto. Puedes decir: *"Busco algo para un evento"*.
     *   Alex interpretará tu petición y buscará en el inventario productos que coincidan con ese *vibe*, estilo o necesidad técnica.
 
 2.  **Asesoramiento Técnico Experto**:
