@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader2, MessageSquare, X, Minimize2 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { Product } from '@/lib/data';
 import { ProductModal } from './ProductModal';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -182,10 +183,17 @@ export default function Chat() {
                                                 : 'bg-transparent text-[var(--foreground)] border border-[var(--muted)]'
                                                 }`}
                                         >
-                                            {msg.text}
+                                            <ReactMarkdown
+                                                components={{
+                                                    strong: ({ node, ...props }: any) => <span className="font-bold underline decoration-1 underline-offset-2" {...props} />
+                                                }}
+                                            >
+                                                {msg.text}
+                                            </ReactMarkdown>
                                         </div>
 
                                         {/* Render Products if available */}
+
                                         {msg.products && msg.products.length > 0 && (
                                             <div className="mt-3 grid gap-2 w-full">
                                                 {msg.products.map((product) => (
