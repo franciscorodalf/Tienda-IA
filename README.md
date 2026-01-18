@@ -13,7 +13,10 @@ El núcleo de Tienda.IA es "Alex", un agente de IA sofisticado que actúa como t
 
 ## Potencia de la IA (Alex)
 
-Alex no es un chatbot estándar con respuestas predefinidas. Es un modelo de lenguaje avanzado (LLM) con acceso a herramientas en tiempo real que le permiten interactuar con la base de datos de la tienda.
+Alex no es un chatbot estándar. Utiliza una arquitectura **RAG-lite (Retrieval Augmented Generation)** optimizada para velocidad:
+1.  **Inyección de Contexto**: Antes de que la IA responda, el sistema escanea tu mensaje. Si detecta intención de búsqueda (ej: "chaqueta"), inyecta los productos relevantes directamente en el prompt del sistema.
+2.  **Safety Lock 🔒**: Para evitar alucinaciones y errores, si el sistema detecta que ya tiene la información del producto, **bloquea** la capacidad de la IA de generar búsquedas redundantes, forzándola a responder con los datos reales.
+3.  **Filtro UI Inteligente**: La interfaz solo muestra las tarjetas de producto que la IA menciona explícitamente en su respuesta, manteniendo el chat limpio.
 
 ### ¿Qué puede hacer Alex?
 
@@ -46,7 +49,7 @@ Alex no es un chatbot estándar con respuestas predefinidas. Es un modelo de len
 
 ## Stack Técnico
 
-*   **Inteligencia Artificial**: Google Gemini 2.5 Flash (vía SDK `google-generative-ai`).
+*   **Inteligencia Artificial**: Groq (Llama 3.3 70B) - Ultra baja latencia.
 *   **Frontend**: Next.js 15 (App Router) y React.
 *   **Estilos**: Tailwind CSS con diseño "utility-first".
 *   **Animaciones**: Framer Motion para micro-interacciones.
@@ -71,7 +74,7 @@ El proyecto sigue estrictos protocolos de seguridad para proteger las credencial
 3.  **Configurar Variables de Entorno**:
     Crea un archivo `.env.local` y añade tu clave:
     ```env
-    GOOGLE_API_KEY=tu_clave_api_aqui
+    GROQ_API_KEY=tu_clave_api_aqui
     ```
 4.  **Desplegar**:
     ```bash
