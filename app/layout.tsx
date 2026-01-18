@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 import { CartProvider } from '@/context/CartContext';
+import { ChatProvider } from '@/context/ChatContext';
 import { CartDrawer } from '@/components/CartDrawer';
 import Chat from '@/components/Chat';
 
@@ -19,9 +20,11 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased bg-[var(--background)] text-[var(--foreground)] selection:bg-white selection:text-black">
         <CartProvider>
-          {children}
-          <CartDrawer />
-          <Chat />
+          <ChatProvider>
+            {children}
+            <CartDrawer />
+            <Chat />
+          </ChatProvider>
         </CartProvider>
       </body>
     </html>

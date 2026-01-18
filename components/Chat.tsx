@@ -7,6 +7,7 @@ import { Product } from '@/lib/data';
 import { ProductModal } from './ProductModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
+import { useChat } from '@/context/ChatContext';
 
 interface Message {
     role: 'user' | 'model';
@@ -15,7 +16,8 @@ interface Message {
 }
 
 export default function Chat() {
-    const [isOpen, setIsOpen] = useState(false);
+    const { isOpen, closeChat, openChat, initialMessage, clearInitialMessage } = useChat();
+    // const [isOpen, setIsOpen] = useState(false); // REPLACED BY CONTEXT
     const [input, setInput] = useState('');
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -36,12 +38,21 @@ export default function Chat() {
         const hasOpened = sessionStorage.getItem('chatHasOpened');
         if (!hasOpened) {
             const timer = setTimeout(() => {
-                setIsOpen(true);
+                openChat();
                 sessionStorage.setItem('chatHasOpened', 'true');
             }, 2000);
             return () => clearTimeout(timer);
         }
     }, []);
+
+    // Effect to handle initial message from Context (e.g. from ProductModal)
+    useEffect(() => {
+        if (isOpen && initialMessage) {
+            setInput(initialMessage);
+            // Optional: Auto-submit? No, let user confirm or edit.
+            // But we should focus the input.
+        }
+    }, [isOpen, initialMessage]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -56,6 +67,9 @@ export default function Chat() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
+
+        // Clear context message once submitted
+        if (initialMessage) clearInitialMessage();
 
         const userMessage: Message = { role: 'user', text: input };
         setMessages((prev) => [...prev, userMessage]);
@@ -121,7 +135,7 @@ export default function Chat() {
                     animate={{ scale: 1, opacity: 1 }}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => setIsOpen(true)}
+                    onClick={() => openChat()}
                     className="fixed bottom-6 right-6 z-40 bg-[var(--foreground)] text-[var(--background)] p-4 rounded-full shadow-2xl flex items-center gap-2 border border-[var(--background)]"
                 >
                     <Bot size={24} />
@@ -153,7 +167,7 @@ export default function Chat() {
                                 </div>
                             </div>
                             <button
-                                onClick={() => setIsOpen(false)}
+                                onClick={closeChat}
                                 className="p-2 hover:bg-[var(--muted)] rounded-full transition-colors"
                             >
                                 <Minimize2 size={18} />

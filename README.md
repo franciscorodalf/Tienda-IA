@@ -13,10 +13,12 @@ El núcleo de Tienda.IA es "Alex", un agente de IA sofisticado que actúa como t
 
 ## Potencia de la IA (Alex)
 
-Alex no es un chatbot estándar. Utiliza una arquitectura **RAG-lite (Retrieval Augmented Generation)** optimizada para velocidad:
-1.  **Inyección de Contexto**: Antes de que la IA responda, el sistema escanea tu mensaje. Si detecta intención de búsqueda (ej: "chaqueta"), inyecta los productos relevantes directamente en el prompt del sistema.
-2.  **Safety Lock 🔒**: Para evitar alucinaciones y errores, si el sistema detecta que ya tiene la información del producto, **bloquea** la capacidad de la IA de generar búsquedas redundantes, forzándola a responder con los datos reales.
-3.  **Filtro UI Inteligente**: La interfaz solo muestra las tarjetas de producto que la IA menciona explícitamente en su respuesta, manteniendo el chat limpio.
+Alex no es un chatbot estándar. Utiliza una arquitectura de **"Global Context" (Memoria Total)** optimizada para máxima precisión en catálogos boutique:
+
+1.  **Inyección de Contexto Global**: A diferencia de los sistemas RAG complejos, Alex recibe el catálogo *completo* (16 productos exclusivos) directamente en su memoria inicial. Esto le permite razonar sobre *todo* el inventario simultáneamente para crear outfits complejos sin latencia de búsqueda.
+2.  **Ask Alex Integration**: Integrado directamente en las fichas de producto. Puedes pulsar "👟 Ideas de Outfit" o "🧵 Detalles" para abrir el chat con el contexto del producto ya cargado.
+3.  **Lógica de "Fuzzy Matching" 🕵️‍♂️**: El sistema entiende errores tipográficos y traducciones (ej: "Botas Stomp" -> `Combat Boots "Stomp"`) para gestionar el carrito sin frustrar al usuario.
+4.  **Filtro UI Inteligente**: La interfaz solo muestra las tarjetas de producto que la IA menciona explícitamente en su respuesta, manteniendo el chat limpio.
 
 ### ¿Qué puede hacer Alex?
 

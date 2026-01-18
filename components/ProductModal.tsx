@@ -3,6 +3,7 @@ import { Product } from '@/lib/data';
 import { X, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
+import { useChat } from '@/context/ChatContext';
 
 interface ProductModalProps {
     product: Product | null;
@@ -12,6 +13,7 @@ interface ProductModalProps {
 
 export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
     const { addItem, setIsCartOpen } = useCart();
+    const { openChat } = useChat();
     const [selectedSize, setSelectedSize] = React.useState<string | null>(null);
     const [selectedColor, setSelectedColor] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
@@ -154,6 +156,60 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* --- ASK ALEX SECTION (New) --- */}
+                                    <div className="pt-6 border-t border-[var(--muted)]">
+                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
+                                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                            Ask Alex AI
+                                        </h3>
+
+                                        {/* Smart Chips */}
+                                        <div className="flex gap-2 mb-3 flex-wrap">
+                                            <button
+                                                onClick={() => {
+                                                    onClose();
+                                                    openChat(`Sobre ${product.name}: ¿Podrías darme ideas de outfit para combinarlo?`);
+                                                }}
+                                                className="px-3 py-1.5 bg-[var(--muted)] text-[var(--foreground)] text-[10px] uppercase font-bold tracking-wider hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors rounded-full"
+                                            >
+                                                👟 Ideas de Outfit
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    onClose();
+                                                    openChat(`Sobre ${product.name}: Cuéntame más detalles técnicos y materiales de prenda.`);
+                                                }}
+                                                className="px-3 py-1.5 bg-[var(--muted)] text-[var(--foreground)] text-[10px] uppercase font-bold tracking-wider hover:bg-[var(--foreground)] hover:text-[var(--background)] transition-colors rounded-full"
+                                            >
+                                                🧵 Detalles / Material
+                                            </button>
+                                        </div>
+
+                                        {/* Manual Input Trigger */}
+                                        <form
+                                            onSubmit={(e) => {
+                                                e.preventDefault();
+                                                const form = e.target as HTMLFormElement;
+                                                const input = form.elements.namedItem('question') as HTMLInputElement;
+                                                if (input.value.trim()) {
+                                                    onClose();
+                                                    openChat(`Sobre ${product.name}: ${input.value}`);
+                                                }
+                                            }}
+                                            className="relative"
+                                        >
+                                            <input
+                                                name="question"
+                                                type="text"
+                                                placeholder="Pregunta algo específico..."
+                                                className="w-full bg-[var(--muted)]/30 border border-[var(--muted)] px-3 py-2 text-xs text-[var(--foreground)] focus:outline-none focus:border-[var(--foreground)] placeholder:text-gray-500"
+                                            />
+                                            <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 text-[var(--foreground)] hover:text-gray-400">
+                                                <ShoppingBag size={12} className="rotate-[-45deg]" /> {/* Stylized arrow icon reuse */}
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
 
                                 {error && (

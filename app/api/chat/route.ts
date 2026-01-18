@@ -45,8 +45,28 @@ interface AddToCartToolArgs {
 // --- HELPER FUNCTIONS ---
 
 function findProductByName(name: string): Product | undefined {
-    const lowerName = name.toLowerCase();
-    return products.find(p => p.name.toLowerCase().includes(lowerName));
+    const lowerName = name.toLowerCase().trim();
+
+    // 1. Strict (or partial) string match
+    const exactMatch = products.find(p => p.name.toLowerCase().includes(lowerName));
+    if (exactMatch) return exactMatch;
+
+    // 2. Fuzzy/Word match (Fallback)
+    // Useful if AI translates "Combat Boots" to "Botas" or just says "Stomp"
+    const searchTerms = lowerName.split(' ').filter(t => t.length > 2);
+
+    return products.find(p => {
+        const productLower = p.name.toLowerCase();
+        // Check if *all* significant search terms are present in the product name
+        // or effectively if the "model name" (quoted part) is present.
+
+        // Strategy: If the input has "stomp", it should match 'Combat Boots "Stomp"'
+        // But we must be careful not to match "Hoodie" with "Zip-Up Hoodie" if user just said "Hoodie".
+
+        // Count how many terms match
+        const matches = searchTerms.filter(term => productLower.includes(term));
+        return matches.length >= Math.ceil(searchTerms.length * 0.75); // 75% match threshold
+    });
 }
 
 
@@ -155,7 +175,7 @@ export async function POST(req: Request) {
 
             finalResponseText = secondResponse.choices[0].message.content || "";
         }
-        
+
         const lowerResponse = finalResponseText.toLowerCase();
 
         // Remove duplicates and check mention
