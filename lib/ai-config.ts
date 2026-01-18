@@ -25,43 +25,26 @@ export const TOOLS: Groq.Chat.Completions.ChatCompletionTool[] = [
     {
         type: "function",
         function: {
-            name: 'searchProducts',
-            description: 'Busca productos en el inventario. Úsalo para encontrar prendas específicas, estilos (boxy, oversized), colores o tipos de ropa.',
+            name: "addToCart",
+            description: "Añade un producto al carrito de compras del usuario. Usa esto SIEMPRE que el usuario confirme explícitamente que quiere comprar algo.",
             parameters: {
-                type: 'object',
-                properties: {
-                    query: {
-                        type: 'string',
-                        description: 'Término de búsqueda. Puede ser un color, un tipo de prenda (hoodie, tee), un fit (oversized) o una característica.',
-                    },
-                },
-                required: ['query'],
-            },
-        }
-    },
-    {
-        type: "function",
-        function: {
-            name: 'addToCart',
-            description: 'Añade un producto al carrito de compras del usuario.',
-            parameters: {
-                type: 'object',
+                type: "object",
                 properties: {
                     productName: {
-                        type: 'string',
-                        description: 'El nombre exacto del producto a añadir.',
+                        type: "string",
+                        description: "El nombre exacto del producto a añadir.",
                     },
                     size: {
-                        type: 'string',
-                        description: 'La talla seleccionada (S, M, L, XL, One Size).',
+                        type: "string",
+                        description: "La talla seleccionada (ej: S, M, L, 42, 43).",
                     },
                     color: {
-                        type: 'string',
-                        description: 'El color seleccionado.',
-                    }
+                        type: "string",
+                        description: "El color seleccionado.",
+                    },
                 },
-                required: ['productName'],
+                required: ["productName"],
             },
-        }
+        },
     },
 ];
