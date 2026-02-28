@@ -113,8 +113,18 @@ export function CartDrawer() {
                             </div>
                             <button
                                 onClick={() => {
-                                    setIsCartOpen(false);
-                                    router.push('/checkout');
+                                    import('react-hot-toast').then(({ default: toast }) => {
+                                        toast.error('El sistema de pagos de Stripe se encuentra actualmente en entorno de pruebas (Sandbox). El checkout está desactivado.', {
+                                            style: {
+                                                background: 'var(--foreground)',
+                                                color: 'var(--background)',
+                                                borderRadius: '0px',
+                                                fontSize: '12px',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.05em'
+                                            }
+                                        });
+                                    });
                                 }}
                                 disabled={items.length === 0}
                                 className="w-full py-4 bg-black text-white uppercase text-xs font-medium tracking-widest hover:bg-gray-800 transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"

@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
-import { Search, ShoppingBag, Menu } from 'lucide-react';
+import { Search, ShoppingBag, Menu, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface NavbarProps {
@@ -28,7 +28,7 @@ export const Navbar = ({ searchQuery, setSearchQuery }: NavbarProps) => {
                 </button>
 
                 {/* Navigation Links */}
-                <div className="hidden lg:flex items-center gap-8 text-[11px] uppercase tracking-widest text-black">
+                <div className="hidden lg:flex items-center gap-8 text-sm font-semibold uppercase tracking-widest text-black">
                     <Link href="/" className="hover:text-gray-500 transition-colors">
                         Shop
                     </Link>
@@ -41,7 +41,7 @@ export const Navbar = ({ searchQuery, setSearchQuery }: NavbarProps) => {
                 </div>
 
                 {/* Logo */}
-                <div className="absolute left-1/2 -translate-x-1/2 text-lg font-medium tracking-widest text-black">
+                <div className="absolute left-1/2 -translate-x-1/2 text-2xl font-medium tracking-widest text-black">
                     <Link href="/">AURA</Link>
                 </div>
 
@@ -54,23 +54,27 @@ export const Navbar = ({ searchQuery, setSearchQuery }: NavbarProps) => {
                                 placeholder="SEARCH..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-0 opacity-0 group-hover:w-40 group-hover:opacity-100 focus:w-40 focus:opacity-100 transition-all duration-300 ease-in-out bg-transparent border-b border-gray-300 px-0 py-1 text-[10px] uppercase tracking-widest focus:outline-none focus:border-black text-black placeholder:text-gray-400 mr-2"
+                                className="w-0 opacity-0 group-hover:w-48 group-hover:opacity-100 focus:w-48 focus:opacity-100 transition-all duration-300 ease-in-out bg-transparent border-b border-gray-300 px-0 py-1 text-xs uppercase tracking-widest focus:outline-none focus:border-black text-black placeholder:text-gray-400 mr-2"
                             />
-                            <Search className="w-4 h-4 text-black" />
+                            <Search className="w-5 h-5 text-black" />
                         </div>
                     ) : (
                         <button className="text-black hover:text-gray-500 transition-colors">
-                            <Search className="w-4 h-4" />
+                            <Search className="w-5 h-5" />
                         </button>
                     )}
+
+                    <Link href="/login" className="text-black hover:text-gray-500 transition-colors">
+                        <User className="w-5 h-5" />
+                    </Link>
 
                     <button
                         className="relative group text-black hover:text-gray-500 transition-colors"
                         onClick={() => setIsCartOpen(true)}
                     >
-                        <ShoppingBag className="w-4 h-4" />
+                        <ShoppingBag className="w-5 h-5" />
                         {itemCount > 0 && (
-                            <span className="absolute -top-2 -right-2 w-3.5 h-3.5 bg-black text-white rounded-full text-[9px] flex items-center justify-center font-bold">
+                            <span className="absolute -top-2 -right-2 w-4 h-4 bg-black text-white rounded-full text-[10px] flex items-center justify-center font-bold">
                                 {itemCount}
                             </span>
                         )}

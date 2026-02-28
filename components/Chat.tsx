@@ -8,6 +8,7 @@ import { ProductModal } from './ProductModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 import { useChat } from '@/context/ChatContext';
+import toast from 'react-hot-toast';
 
 interface Message {
     role: 'user' | 'model';
@@ -117,10 +118,23 @@ export default function Chat() {
             setMessages((prev) => [...prev, aiMessage]);
         } catch (error) {
             console.error('Chat error:', error);
-            setMessages((prev) => [
-                ...prev,
-                { role: 'model', text: 'Lo siento, hubo un error. Por favor intenta de nuevo.' },
-            ]);
+            toast.error('Lo siento, ha habido un error de conexión con mi sistema principal. Por favor, inténtalo de nuevo.', {
+                style: {
+                    background: 'var(--foreground)',
+                    color: 'var(--background)',
+                    borderRadius: '0px',
+                    fontSize: '12px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
+                },
+                iconTheme: {
+                    primary: '#ef4444',
+                    secondary: 'var(--background)',
+                },
+            });
+            // We remove the user message so they can try to send it again without it getting stuck
+            setMessages((prev) => prev.slice(0, -1));
+            setInput(userMessage.text);
         } finally {
             setIsLoading(false);
         }
