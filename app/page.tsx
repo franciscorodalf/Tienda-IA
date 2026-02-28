@@ -57,11 +57,11 @@ export default function Home() {
       </section>
 
       {/* Filters & Grid */}
-      <main className="max-w-[1800px] mx-auto py-12 px-8 sm:px-12 md:px-16 lg:px-24">
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+      <main className="max-w-[1800px] mx-auto py-16 px-8 sm:px-16 md:px-24 lg:px-32">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-16 gap-6">
 
 
-          <div className="flex flex-wrap gap-6 border-b border-gray-200 pb-2 w-full">
+          <div className="flex flex-wrap md:justify-center gap-8 border-b border-gray-200 pb-3 w-full">
             {categories.map(cat => (
               <button
                 key={cat}
@@ -79,7 +79,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-16 lg:gap-x-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-24 lg:gap-x-12">
           {filteredProducts.map((product) => (
             <ProductCard
               key={product.id}

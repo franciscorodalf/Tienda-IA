@@ -38,13 +38,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) =>
                 )}
             </div>
 
-            <div className="mt-6 flex flex-col space-y-2">
-                <h3 className="text-[11px] font-medium uppercase tracking-widest text-black group-hover:text-gray-600 transition-colors leading-snug">
+            <div className="mt-8 flex flex-col gap-3">
+                <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-black group-hover:text-gray-500 transition-colors leading-relaxed">
                     {product.name}
                 </h3>
-                <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-gray-500 pt-2 border-t border-gray-100">
+                <div className="flex justify-between items-center text-[10px] uppercase tracking-widest text-gray-500 pt-3 border-t border-gray-100">
                     <span>{product.category}</span>
-                    <span className="text-black font-semibold">${product.price.toFixed(2)}</span>
+                    <span className="text-black font-medium">${product.price.toFixed(2)}</span>
                 </div>
             </div>
         </motion.div>
