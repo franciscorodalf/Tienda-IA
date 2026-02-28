@@ -1,22 +1,16 @@
 import Groq from 'groq-sdk';
 import { NextResponse } from 'next/server';
-import { products } from '@/lib/data';
+import { prisma } from '@/lib/prisma';
 import { groq } from '@/lib/groq';
 import { SYSTEM_INSTRUCTION, TOOLS } from '@/lib/ai-config';
+import { Product as RawProduct } from '@/lib/data'; // Keep types from data temporarily
+import NodeCache from 'node-cache';
+
+// Creamos caché de 1 hora de duración para comandos de texto repetidos
+const myCache = new NodeCache({ stdTTL: 3600 });
 
 // --- TYPES ---
-interface Product {
-    id: string;
-    name: string;
-    description: string;
-    price: number;
-    category: string;
-    imageUrl: string;
-    stock: boolean;
-    colors: string[];
-    sizes: string[];
-    features: string[];
-}
+interface Product extends RawProduct { }
 
 interface CartAction {
     type: 'ADD';
@@ -44,18 +38,18 @@ interface AddToCartToolArgs {
 
 // --- HELPER FUNCTIONS ---
 
-function findProductByName(name: string): Product | undefined {
+function findProductByName(name: string, allProducts: Product[]): Product | undefined {
     const lowerName = name.toLowerCase().trim();
 
     // 1. Strict (or partial) string match
-    const exactMatch = products.find(p => p.name.toLowerCase().includes(lowerName));
+    const exactMatch = allProducts.find(p => p.name.toLowerCase().includes(lowerName));
     if (exactMatch) return exactMatch;
 
     // 2. Fuzzy/Word match (Fallback)
     // Useful if AI translates "Combat Boots" to "Botas" or just says "Stomp"
     const searchTerms = lowerName.split(' ').filter(t => t.length > 2);
 
-    return products.find(p => {
+    return allProducts.find(p => {
         const productLower = p.name.toLowerCase();
         // Check if *all* significant search terms are present in the product name
         // or effectively if the "model name" (quoted part) is present.
@@ -88,21 +82,62 @@ export async function POST(req: Request) {
     }
 
     try {
-        // --- GLOBAL CONTEXT INJECTION ---
-        // We inject the ENTIRE catalog into the system prompt.
-        // This gives the AI "perfect memory" of all products without needing to search.
-        const catalogContext = products.map(p =>
+        // Fetch products dynamically from Supabase
+        const dbProducts = await prisma.product.findMany();
+        const activeProducts = dbProducts.map((p: any) => ({
+            id: p.productId,
+            name: p.name,
+            price: p.price,
+            description: p.description,
+            category: p.category,
+            stock: p.stock,
+            imageUrl: p.imageUrl,
+            colors: p.colors,
+            sizes: p.sizes,
+            features: p.features,
+        }));
+
+        // --- RAG (Retrieval-Augmented Generation) LIGERA ---
+        // En lugar de inyectar TODOS los 16 productos, buscamos los 4 más relevantes
+        // basándonos en el último mensaje del usuario para ahorrar muchísimos tokens de IA.
+        const Fuse = (await import('fuse.js')).default;
+
+        const fuse = new Fuse(activeProducts, {
+            keys: ['name', 'category', 'description', 'colors', 'features'],
+            threshold: 0.6, // Búsqueda semántica (fuzzy matching) relajada
+            includeScore: true
+        });
+
+        // Buscamos productos que coincidan con el mensaje del usuario
+        const searchResults = fuse.search(message);
+
+        // Si no detecta coincidencia específica (es un "Hola" o genérico), o si es el primer msj, pasamos algunos aleatorios 
+        // o los más vendidos. En este caso pasamos los 4 primeros por defecto si no hay matches.
+        let relevantProducts = activeProducts.slice(0, 4);
+
+        if (searchResults.length > 0) {
+            // Cogemos los 4 mejores resultados
+            relevantProducts = searchResults.slice(0, 4).map(res => res.item);
+        } else if (message.toLowerCase().includes('todo') || message.toLowerCase().includes('catálogo')) {
+            // Excepción: Si nos pide expresamente ver todo, le pasamos más, max 8.
+            relevantProducts = activeProducts.slice(0, 8);
+        }
+
+        const catalogContext = relevantProducts.map((p: any) =>
             `- ${p.name} (${p.category}): ${p.description}. Precio: ${p.price}. Colores: ${p.colors.join(', ')}. Tallas: ${p.sizes.join(', ')}.`
         ).join('\n');
 
         const systemMessageWithContext = `${SYSTEM_INSTRUCTION}
 
-        [[INVENTARIO COMPLETO - ÚSALO PARA RECOMENDAR]]
+        [[INVENTARIO RELEVANTE - ÚSALO PARA RECOMENDAR]]
+        Aquí tienes una MUESTRA los productos de la tienda que PUEDEN ENCAJAR con lo que pide el cliente:
         ${catalogContext}
         
-        [[INSTRUCCIÓN]]
-        Si el usuario pregunta por "algo verde", "ropa para fiesta", "outfit", etc., USA EL INVENTARIO de arriba.
-        NO inventes productos. Solo recomienda lo que está en la lista.
+        [[INSTRUCCIÓN RAG]]
+        Si el usuario te ha preguntado por pantalones y ves pantalones en la lista, ofréceselos.
+        Si la lista que se te ha pasado en el INVENTARIO RELEVANTE no encaja nada, dile amablemente:
+        "No he encontrado exactamente eso, pero te puedo recomendar otras prendas de nuestra tienda".
+        ATENCIÓN: Tienes desactivado el uso de "tools" temporalmente para optimizar tu respuesta.
         `;
 
         // Map history to Groq format
@@ -117,25 +152,45 @@ export async function POST(req: Request) {
 
         console.log(`💬 [Usuario]: ${message}`);
 
-        // 1. First API Call
-        const completion = await groq.chat.completions.create({
-            messages,
-            model: 'llama-3.3-70b-versatile',
-            tools: TOOLS, // Only contains addToCart now
-            tool_choice: 'auto',
-            max_tokens: 1024,
-        });
+        // 1. Caching requests for Identical Prompts (Basic Semantic Cache)
+        const isActionOrComplex = history.length > 5; // Evitamos cachear si la conver es muy larga
+        const cacheKey = message.toLowerCase().trim();
+        let cachedResponse = null;
 
-        const responseMessage = completion.choices[0].message;
-        const toolCalls = responseMessage.tool_calls;
+        if (!isActionOrComplex && myCache.has(cacheKey)) {
+            console.log(`⚡ [Cache Hit] Respondiendo sin usar IA: "${message}"`);
+            cachedResponse = myCache.get(cacheKey);
+        }
 
-        let finalResponseText = responseMessage.content || "";
+        let responseMessage, toolCallsArr, completion;
+
+        if (cachedResponse) {
+            responseMessage = { content: cachedResponse };
+            toolCallsArr = undefined;
+        } else {
+            completion = await groq.chat.completions.create({
+                messages,
+                model: 'llama-3.3-70b-versatile',
+                tools: TOOLS, // Only contains addToCart now
+                tool_choice: 'auto',
+                max_tokens: 1024,
+            });
+            responseMessage = completion.choices[0].message;
+            toolCallsArr = responseMessage.tool_calls;
+
+            // Guardar en caché si es una respuesta estándar directa y limpia
+            if (!toolCallsArr && responseMessage.content) {
+                myCache.set(cacheKey, responseMessage.content);
+            }
+        }
+
+        const toolCalls = toolCallsArr;
+
+        let finalResponseText = (responseMessage.content as string) || "";
         let cartAction: CartAction | null = null;
 
         // 2. Handle Tool Calls
         if (toolCalls) {
-            messages.push(responseMessage); // Add assistant's call to history
-
             for (const toolCall of toolCalls) {
                 const functionName = toolCall.function.name;
                 const functionArgs = JSON.parse(toolCall.function.arguments);
@@ -144,8 +199,7 @@ export async function POST(req: Request) {
                     const { productName, size, color } = functionArgs as AddToCartToolArgs;
                     console.log(`🛒 [Backend] Intentando añadir al carrito: ${productName}`);
 
-                    const product = findProductByName(productName);
-                    let result;
+                    const product = findProductByName(productName, activeProducts);
 
                     if (product) {
                         cartAction = {
@@ -154,32 +208,23 @@ export async function POST(req: Request) {
                             size: size || product.sizes?.[0] || 'One Size',
                             color: color || product.colors?.[0] || 'Default'
                         };
-                        result = { success: true, message: `Añadido ${product.name} al carrito.` };
-                    } else {
-                        result = { success: false, message: `No encontré el producto ${productName}.` };
-                    }
+                        // 1. ELIMINADA LA DOBLE LLAMADA:
+                        // No le devolvemos el resultado a la IA. Nosotros mismos cerramos la conversación
+                        // indicándole al usuario que la acción se completó con éxito.
+                        finalResponseText = `¡Listo! He añadido **${product.name}** a tu carrito de compras en talla ${cartAction.size} y color ${cartAction.color}. ¿Te gustaría que te recomiende algo a juego?`;
 
-                    messages.push({
-                        tool_call_id: toolCall.id,
-                        role: 'tool',
-                        content: JSON.stringify(result),
-                    });
+                    } else {
+                        // Si falla, también respondemos desde el backend ahorrando re-llamar a la IA.
+                        finalResponseText = `Vaya, he intentado añadir "${productName}" al carrito pero parece que no puedo encontrarlo exactamente así en mi sistema. ¿Podrías confirmarme el nombre desde la ficha de producto?`;
+                    }
                 }
             }
-
-            // 3. Second API Call (after tools)
-            const secondResponse = await groq.chat.completions.create({
-                messages,
-                model: 'llama-3.3-70b-versatile',
-            });
-
-            finalResponseText = secondResponse.choices[0].message.content || "";
         }
 
         const lowerResponse = finalResponseText.toLowerCase();
 
         // Remove duplicates and check mention
-        const productsToShow = products.filter(p => {
+        const productsToShow = activeProducts.filter((p: any) => {
             // Check if the full name appears
             if (lowerResponse.includes(p.name.toLowerCase())) return true;
 
