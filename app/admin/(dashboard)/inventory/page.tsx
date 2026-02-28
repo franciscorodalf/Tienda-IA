@@ -17,9 +17,9 @@ export default async function InventoryPage() {
             <header className="mb-12 flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-light tracking-tight text-black flex items-center gap-3">
-                        INVENTORY <span className="text-[10px] bg-black text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">{products.length} Items</span>
+                        INVENTORY <span className="text-sm bg-black text-white px-3 py-1 rounded-full font-bold uppercase tracking-widest">{products.length} Items</span>
                     </h1>
-                    <p className="text-xs text-gray-500 uppercase tracking-widest mt-2 font-mono">
+                    <p className="text-sm text-gray-500 uppercase tracking-widest mt-2 font-mono">
                         Manage your products catalog & stock
                     </p>
                 </div>
@@ -32,12 +32,12 @@ export default async function InventoryPage() {
             <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
                 <table className="w-full text-left border-collapse">
                     <thead>
-                        <tr className="bg-gray-50 border-b border-gray-100 text-[9px] uppercase tracking-[0.2em] text-gray-400">
+                        <tr className="bg-gray-50 border-b border-gray-100 text-xs uppercase tracking-[0.2em] text-gray-500">
                             <th className="px-6 py-4 font-bold">Product Name</th>
                             <th className="px-6 py-4 font-bold">ID</th>
                             <th className="px-6 py-4 font-bold">Category</th>
                             <th className="px-6 py-4 font-bold">Price</th>
-                            <th className="px-6 py-4 font-bold">Status</th>
+                            <th className="px-6 py-4 font-bold">Stock</th>
                             <th className="px-6 py-4 font-bold text-right">Actions</th>
                         </tr>
                     </thead>
@@ -46,46 +46,52 @@ export default async function InventoryPage() {
                             <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-12 bg-gray-100 flex-shrink-0">
+                                        <div className="w-12 h-16 bg-gray-100 flex-shrink-0">
                                             {p.imageUrl ? (
                                                 /* eslint-disable-next-line @next/next/no-img-element */
-                                                <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover grayscale opacity-90" />
+                                                <img src={p.imageUrl} alt={p.name} className="w-full h-full object-cover" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gray-400"><ImageIcon size={14} /></div>
+                                                <div className="w-full h-full flex items-center justify-center text-gray-400"><ImageIcon size={18} /></div>
                                             )}
                                         </div>
                                         <div>
-                                            <p className="text-xs font-bold text-black uppercase">{p.name}</p>
-                                            <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1 line-clamp-1 max-w-xs">{p.description}</p>
+                                            <p className="text-base font-bold text-black uppercase">{p.name}</p>
+                                            <p className="text-sm text-gray-500 uppercase tracking-widest mt-1 line-clamp-1 max-w-xs">{p.description}</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <span className="text-[10px] font-mono text-gray-500 bg-gray-100 px-2 py-1">{p.productId}</span>
+                                    <span className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1.5 rounded-md">{p.productId}</span>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <span className="text-[10px] text-gray-500 uppercase tracking-widest">{p.category}</span>
+                                    <span className="text-sm text-gray-600 uppercase tracking-widest font-medium">{p.category}</span>
                                 </td>
                                 <td className="px-6 py-4">
-                                    <span className="text-sm font-light text-black flex items-center gap-1">
-                                        <Euro size={12} className="text-gray-400" />
+                                    <span className="text-base font-medium text-black flex items-center gap-1">
+                                        <Euro size={16} className="text-gray-500" />
                                         {p.price.toFixed(2)}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4">
-                                    {p.stock ? (
-                                        <span className="text-[9px] font-bold text-green-700 bg-green-50 px-2 py-1 uppercase tracking-widest flex items-center gap-1 w-max">
-                                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse mr-1"></span> In Stock
+                                    {p.stockQuantity === 0 ? (
+                                        <span className="text-sm font-bold text-red-800 bg-red-100 px-3 py-1.5 rounded-md uppercase tracking-widest flex items-center gap-1.5 w-max">
+                                            Out of Stock
+                                        </span>
+                                    ) : p.stockQuantity <= p.stockAlert ? (
+                                        <span className="text-sm font-bold text-yellow-800 bg-yellow-100 px-3 py-1.5 rounded-md uppercase tracking-widest flex items-center gap-1.5 w-max">
+                                            <span className="w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
+                                            {p.stockQuantity} uds — Low
                                         </span>
                                     ) : (
-                                        <span className="text-[9px] font-bold text-red-700 bg-red-50 px-2 py-1 uppercase tracking-widest flex items-center gap-1 w-max">
-                                            Out of Stock
+                                        <span className="text-sm font-bold text-green-800 bg-green-100 px-3 py-1.5 rounded-md uppercase tracking-widest flex items-center gap-1.5 w-max">
+                                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-1"></span>
+                                            {p.stockQuantity} uds
                                         </span>
                                     )}
                                 </td>
                                 <td className="px-6 py-4 text-right">
-                                    <div className="flex items-center justify-end gap-3">
-                                        <button className="text-[10px] uppercase font-bold text-gray-400 hover:text-black hover:underline tracking-widest">
+                                    <div className="flex items-center justify-end gap-5">
+                                        <button className="text-sm uppercase font-bold text-gray-500 hover:text-black hover:underline tracking-widest">
                                             Edit
                                         </button>
                                         <form action={deleteProductAction.bind(null, p.id)}>
@@ -103,7 +109,7 @@ export default async function InventoryPage() {
                 {products.length === 0 && (
                     <div className="w-full py-20 flex flex-col items-center justify-center">
                         <Box size={40} className="text-gray-300 mb-4" />
-                        <p className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">No products found in DB.</p>
+                        <p className="text-sm uppercase tracking-widest text-gray-500 font-bold">No products found in DB.</p>
                     </div>
                 )}
             </div>

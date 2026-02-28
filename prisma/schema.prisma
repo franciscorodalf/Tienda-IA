@@ -7,59 +7,104 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Supplier {
+  id           String   @id @default(cuid())
+  name         String
+  contactEmail String?
+  country      String
+  leadTimeDays Int      @default(7)  // Días estimados de entrega desde su país
+
+  products       Product[]
+  purchaseOrders PurchaseOrder[]
+
+  createdAt DateTime @default(now())
+}
+
 model Product {
-  id          String   @id @default(cuid())
-  productId   String   @unique
-  name        String
-  price       Float
-  description String
-  category    String
-  stock       Boolean  @default(true)
-  imageUrl    String
-  
-  colors      String[]
-  sizes       String[]
-  features    String[]
+  id            String   @id @default(cuid())
+  productId     String   @unique
+  name          String
+  price         Float
+  description   String
+  category      String
+  stockQuantity Int      @default(0)   // Cantidad real en stock
+  stockAlert    Int      @default(5)   // Umbral mínimo antes de alertar
+  imageUrl      String
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  colors   String[]
+  sizes    String[]
+  features String[]
 
-  orderItems  OrderItem[]
+  supplierId String?
+  supplier   Supplier? @relation(fields: [supplierId], references: [id])
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  orderItems         OrderItem[]
+  purchaseOrderItems PurchaseOrderItem[]
 }
 
 model Customer {
-  id           String    @id @default(cuid())
-  email        String    @unique
+  id           String @id @default(cuid())
+  email        String @unique
   passwordHash String
   name         String
-  role         String    @default("USER") // Para futuro RBAC
+  role         String @default("USER")
 
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  orders       Order[]
+  orders Order[]
 }
 
 model Order {
-  id         String      @id @default(cuid())
+  id         String @id @default(cuid())
   customerId String
-  status     String      @default("PENDING") // PENDING, PAID, SHIPPED, DELIVERED, CANCELLED
+  status     String @default("PENDING")
   total      Float
 
-  customer   Customer    @relation(fields: [customerId], references: [id])
-  items      OrderItem[]
+  customer Customer    @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
 
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
+  id        String @id @default(cuid())
   orderId   String
   productId String
   quantity  Int
   price     Float
 
-  order     Order    @relation(fields: [orderId], references: [id])
-  product   Product  @relation(fields: [productId], references: [id])
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
 }
+
+model PurchaseOrder {
+  id         String    @id @default(cuid())
+  supplierId String
+  status     String    @default("DRAFT") // DRAFT, SENT, CONFIRMED, RECEIVED
+  notes      String?
+  expectedAt DateTime?                   // Fecha estimada de llegada (calculada por leadTimeDays)
+
+  supplier Supplier            @relation(fields: [supplierId], references: [id])
+  items    PurchaseOrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PurchaseOrderItem {
+  id              String @id @default(cuid())
+  purchaseOrderId String
+  productId       String
+  quantityOrdered Int
+  unitCost        Float  // Coste al que te lo compra el proveedor (≠ precio de venta)
+
+  purchaseOrder PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
+  product       Product       @relation(fields: [productId], references: [id])
+}
+
+

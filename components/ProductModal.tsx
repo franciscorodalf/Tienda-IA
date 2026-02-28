@@ -116,7 +116,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                                     )}
 
                                     {/* Colors (Visual) */}
-                                    {product.colors && product.colors.length > 1 && (
+                                    {product.colors && product.colors.length >= 1 && (
                                         <div>
                                             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Colors</h3>
                                             <div className="flex gap-2">
@@ -137,7 +137,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                                     )}
 
                                     {/* Sizes */}
-                                    {product.sizes && product.sizes.length > 1 && (
+                                    {product.sizes && product.sizes.length >= 1 && (
                                         <div>
                                             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Size</h3>
                                             <div className="flex gap-2 flex-wrap">

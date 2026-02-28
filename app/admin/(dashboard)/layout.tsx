@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { LayoutDashboard, Package, Settings, Users, ArrowLeft, LogOut, ShoppingBag } from 'lucide-react';
+import { LayoutDashboard, Package, Settings, Users, ArrowLeft, LogOut, ShoppingBag, Truck, Building2 } from 'lucide-react';
 import { logoutAction } from '../login/actions';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -48,6 +48,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         Customers
                     </Link>
 
+                    <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-4 mt-8">Supply Chain</p>
+                    <Link
+                        href="/admin/suppliers"
+                        className="flex items-center gap-3 px-3 py-3 text-sm font-medium text-gray-600 hover:text-black hover:bg-gray-50 rounded-md transition-colors w-full"
+                    >
+                        <Building2 size={18} />
+                        Suppliers
+                    </Link>
+                    <Link
+                        href="/admin/purchases"
+                        className="flex items-center gap-3 px-3 py-3 text-sm font-medium text-gray-600 hover:text-black hover:bg-gray-50 rounded-md transition-colors w-full"
+                    >
+                        <Truck size={18} />
+                        Purchase Orders
+                    </Link>
+
                     <Link
                         href="#"
                         className="flex items-center justify-between px-3 py-3 text-sm font-medium text-gray-400 hover:text-black hover:bg-gray-50 rounded-md transition-colors w-full mt-2"
@@ -81,7 +97,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
             {/* Main Content Area */}
             <main className="flex-1 p-8 lg:p-12 overflow-y-auto w-full">
-                <div className="max-w-5xl mx-auto">
+                <div className="max-w-7xl mx-auto">
                     {children}
                 </div>
             </main>

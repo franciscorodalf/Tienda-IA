@@ -16,7 +16,7 @@ export default async function Home() {
     price: p.price,
     description: p.description,
     category: p.category,
-    stock: p.stock,
+    stock: p.stockQuantity > 0,  // Derivado de stockQuantity (campo real de BD)
     imageUrl: p.imageUrl,
     colors: p.colors,
     sizes: p.sizes,
