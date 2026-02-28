@@ -12,7 +12,12 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
     return (
         <motion.div
+            layout
             layoutId={`product-${product.id}`}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ duration: 0.4, type: "spring", bounce: 0, opacity: { duration: 0.2 } }}
             onClick={() => onClick(product)}
             className="group relative cursor-pointer"
         >

@@ -6,7 +6,12 @@ import { useCart } from '@/context/CartContext';
 import { Search, ShoppingBag, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export const Navbar = () => {
+interface NavbarProps {
+    searchQuery?: string;
+    setSearchQuery?: (query: string) => void;
+}
+
+export const Navbar = ({ searchQuery, setSearchQuery }: NavbarProps) => {
     const { setIsCartOpen, itemCount } = useCart();
 
     return (
@@ -42,9 +47,22 @@ export const Navbar = () => {
 
                 {/* Icons */}
                 <div className="flex items-center gap-6">
-                    <button className="text-black hover:text-gray-500 transition-colors">
-                        <Search className="w-4 h-4" />
-                    </button>
+                    {searchQuery !== undefined && setSearchQuery !== undefined ? (
+                        <div className="relative flex items-center group hidden md:flex">
+                            <input
+                                type="text"
+                                placeholder="SEARCH..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-0 opacity-0 group-hover:w-40 group-hover:opacity-100 focus:w-40 focus:opacity-100 transition-all duration-300 ease-in-out bg-transparent border-b border-gray-300 px-0 py-1 text-[10px] uppercase tracking-widest focus:outline-none focus:border-black text-black placeholder:text-gray-400 mr-2"
+                            />
+                            <Search className="w-4 h-4 text-black" />
+                        </div>
+                    ) : (
+                        <button className="text-black hover:text-gray-500 transition-colors">
+                            <Search className="w-4 h-4" />
+                        </button>
+                    )}
 
                     <button
                         className="relative group text-black hover:text-gray-500 transition-colors"

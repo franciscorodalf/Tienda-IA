@@ -6,13 +6,14 @@ import { ProductCard } from '@/components/ProductCard';
 import { Navbar } from '@/components/Navbar';
 import { ProductModal } from '@/components/ProductModal';
 import { useCart } from '@/context/CartContext';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { Menu, Search, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { setIsCartOpen, itemCount } = useCart();
 
@@ -20,15 +21,18 @@ export default function Home() {
   const categories = ['Todos', ...Array.from(new Set(products.map((p) => p.category)))];
 
   // Filter products
-  const filteredProducts = selectedCategory === 'Todos'
-    ? products
-    : products.filter(p => p.category === selectedCategory);
+  const filteredProducts = products.filter(p => {
+    const matchesCategory = selectedCategory === 'Todos' || p.category === selectedCategory;
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="min-h-full bg-[var(--background)] text-[var(--foreground)]">
 
       {/* New Floating Navbar */}
-      <Navbar />
+      <Navbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
       {/* Hero Section */}
       <section className="relative h-[90vh] w-full flex items-end overflow-hidden pb-12 px-6">
@@ -60,7 +64,6 @@ export default function Home() {
       <main className="max-w-[1800px] mx-auto py-16 px-8 sm:px-16 md:px-24 lg:px-32">
         <div className="flex flex-col md:flex-row justify-between items-center mb-16 gap-6">
 
-
           <div className="flex flex-wrap md:justify-center gap-8 border-b border-gray-200 pb-3 w-full">
             {categories.map(cat => (
               <button
@@ -79,15 +82,17 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-24 lg:gap-x-12">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onClick={setSelectedProduct}
-            />
-          ))}
-        </div>
+        <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-24 lg:gap-x-12">
+          <AnimatePresence mode="popLayout">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onClick={setSelectedProduct}
+              />
+            ))}
+          </AnimatePresence>
+        </motion.div>
 
         {filteredProducts.length === 0 && (
           <div className="py-20 text-center text-gray-400 text-xs uppercase tracking-widest">

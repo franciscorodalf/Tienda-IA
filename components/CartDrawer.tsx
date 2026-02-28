@@ -2,11 +2,13 @@
 
 import React from 'react';
 import { useCart } from '@/context/CartContext';
+import { useRouter } from 'next/navigation';
 import { X, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function CartDrawer() {
-    const { isCartOpen, setIsCartOpen, items, removeItem, updateQuantity, cartTotal } = useCart();
+    const { isCartOpen, setIsCartOpen, items, removeItem, updateQuantity, cartTotal, clearCart } = useCart();
+    const router = useRouter();
 
     return (
         <AnimatePresence>
@@ -110,6 +112,10 @@ export function CartDrawer() {
                                 <span>${cartTotal.toFixed(2)}</span>
                             </div>
                             <button
+                                onClick={() => {
+                                    setIsCartOpen(false);
+                                    router.push('/checkout');
+                                }}
                                 disabled={items.length === 0}
                                 className="w-full py-4 bg-black text-white uppercase text-xs font-medium tracking-widest hover:bg-gray-800 transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
                             >
