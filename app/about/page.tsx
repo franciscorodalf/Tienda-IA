@@ -20,9 +20,9 @@ export default function AboutPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <span className="text-xs font-bold uppercase tracking-[0.3em] text-gray-500 mb-4 block">The Origin</span>
-                    <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-12">
-                        Born form<br />the Glitch.
+                    <span className="text-xs font-medium uppercase tracking-[0.3em] text-gray-500 mb-4 block">The Origin</span>
+                    <h1 className="text-4xl md:text-6xl font-light uppercase tracking-widest leading-tight mb-12 text-black">
+                        The Essence<br />Of Elegance.
                     </h1>
                 </motion.div>
 
@@ -31,16 +31,16 @@ export default function AboutPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4, duration: 0.8 }}
-                        className="prose prose-invert prose-lg text-gray-300 font-medium leading-relaxed"
+                        className="prose prose-lg text-gray-700 font-medium leading-relaxed"
                     >
                         <p>
-                            TIENDA.IA wasn't founded in a boardroom. It started as a rendering error in 2024—a corrupted file that generated a hoodie silhouette so perfect, it couldn't be ignored.
+                            AURA was born from a desire for absolute simplicity. An exploration of shape, material, and movement that focuses on what is truly essential.
                         </p>
                         <p>
-                            We realized that the future of streetwear wasn't in heritage, but in hallucination. The intersection where algorithmic precision meets human chaos.
+                            We realized that the future of fashion wasn't in excess, but in restraint. The intersection where precise tailoring meets timeless design.
                         </p>
                         <p>
-                            We are not designers. We are curators of the code. Every piece in our collection is a dialogue between neural networks and urban utility.
+                            We are curators of style. Every piece in our collection is a dialogue between traditional craftsmanship and modern utility.
                         </p>
                     </motion.div>
 
@@ -54,11 +54,11 @@ export default function AboutPage() {
                 </div>
 
                 <div className="mt-32">
-                    <h2 className="text-2xl font-bold uppercase tracking-tighter mb-8 border-b border-[var(--muted)] pb-2">The Team</h2>
+                    <h2 className="text-xl font-medium uppercase tracking-widest mb-8 border-b border-gray-200 pb-2 text-black">The Atelier</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {['Alex (AI)', 'Sarah (Creative)', 'Davide (Tech)', 'Yuki (Ops)'].map((member) => (
-                            <div key={member} className="bg-[var(--muted)] p-4 pt-12">
-                                <p className="font-bold uppercase tracking-wider text-sm">{member}</p>
+                        {['Elena (Design)', 'Marcus (Curation)', 'David (Sourcing)', 'Sofia (Operations)'].map((member) => (
+                            <div key={member} className="bg-gray-50 p-4 pt-12">
+                                <p className="font-medium uppercase tracking-widest text-xs text-gray-600">{member}</p>
                             </div>
                         ))}
                     </div>

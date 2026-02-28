@@ -7,8 +7,8 @@ import { CartDrawer } from '@/components/CartDrawer';
 import Chat from '@/components/Chat';
 
 export const metadata: Metadata = {
-  title: 'TIENDA.IA | STREETWEAR',
-  description: 'Future of fashion commerce.',
+  title: 'AURA | MINIMALIST',
+  description: 'Minimalist fashion ecommerce.',
 };
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased bg-[var(--background)] text-[var(--foreground)] selection:bg-white selection:text-black">
+      <body className="antialiased bg-[var(--background)] text-[var(--foreground)] selection:bg-black selection:text-white">
         <CartProvider>
           <ChatProvider>
             {children}

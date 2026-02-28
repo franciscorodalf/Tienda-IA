@@ -22,7 +22,7 @@ export default function Chat() {
     const [messages, setMessages] = useState<Message[]>([
         {
             role: 'model',
-            text: "Alex aquí. ¿Buscas algo distorsionado, boxy o simplemente quieres mejorar tu armario?",
+            text: "Bienvenido a AURA. ¿En qué le puedo ayudar a refinar su estilo hoy?",
         },
     ]);
     const [isLoading, setIsLoading] = useState(false);
@@ -139,7 +139,7 @@ export default function Chat() {
                     className="fixed bottom-6 right-6 z-40 bg-[var(--foreground)] text-[var(--background)] p-4 rounded-full shadow-2xl flex items-center gap-2 border border-[var(--background)]"
                 >
                     <Bot size={24} />
-                    <span className="font-bold uppercase tracking-wider text-xs pr-1">Ask Alex</span>
+                    <span className="font-medium uppercase tracking-widest text-[10px] pl-1 pr-2">AURA Assistant</span>
                 </motion.button>
             )}
 
@@ -155,12 +155,12 @@ export default function Chat() {
                         {/* Chat Header */}
                         <div className="p-4 border-b border-[var(--muted)] flex items-center justify-between shadow-sm z-10 bg-[var(--background)]">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-[var(--foreground)] rounded-full flex items-center justify-center text-[var(--background)]">
+                                <div className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-black">
                                     <Bot size={18} />
                                 </div>
                                 <div>
-                                    <h2 className="font-bold text-sm text-[var(--foreground)] uppercase tracking-wider">Alex / AI Stylist</h2>
-                                    <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest flex items-center gap-1">
+                                    <h2 className="font-medium text-xs text-[var(--foreground)] uppercase tracking-widest">AURA / Virtual Assistant</h2>
+                                    <p className="text-[9px] text-gray-500 font-medium uppercase tracking-widest flex items-center gap-1 mt-1">
                                         <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
                                         Online
                                     </p>

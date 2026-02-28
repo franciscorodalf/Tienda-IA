@@ -53,7 +53,7 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                        className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
                     >
                         {/* Modal Content */}
                         <motion.div
@@ -83,15 +83,15 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                             <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-[var(--background)] text-[var(--foreground)]">
                                 <div className="mb-8">
                                     <div className="flex justify-between items-start">
-                                        <span className="text-xs font-bold uppercase tracking-[0.2em] text-gray-500 mb-2 block">{product.category}</span>
+                                        <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-gray-400 mb-2 block">{product.category}</span>
                                         {product.stock ? (
-                                            <span className="text-green-500 text-[10px] uppercase font-bold tracking-widest border border-green-500/30 px-2 py-1">In Stock</span>
+                                            <span className="text-black text-[9px] uppercase font-medium tracking-widest border border-gray-200 px-2 py-1">In Stock</span>
                                         ) : (
-                                            <span className="text-red-500 text-[10px] uppercase font-bold tracking-widest border border-red-500/30 px-2 py-1">Out of Stock</span>
+                                            <span className="text-gray-500 text-[9px] uppercase font-medium tracking-widest border border-gray-200 px-2 py-1">Out of Stock</span>
                                         )}
                                     </div>
-                                    <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter leading-none mb-4">{product.name}</h2>
-                                    <div className="text-2xl font-mono text-gray-400">${product.price.toFixed(2)}</div>
+                                    <h2 className="text-3xl md:text-4xl font-light uppercase tracking-tight leading-none mb-4">{product.name}</h2>
+                                    <div className="text-xl font-medium text-gray-500">${product.price.toFixed(2)}</div>
                                 </div>
 
                                 <div className="space-y-6 mb-12">
@@ -157,11 +157,10 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                                         </div>
                                     )}
 
-                                    {/* --- ASK ALEX SECTION (New) --- */}
+                                    {/* --- ASK ALEX SECTION --- */}
                                     <div className="pt-6 border-t border-[var(--muted)]">
-                                        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3 flex items-center gap-2">
-                                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                            Ask Alex AI
+                                        <h3 className="text-[10px] font-medium uppercase tracking-widest text-gray-900 mb-3 flex items-center gap-2">
+                                            Virtual Assistant
                                         </h3>
 
                                         {/* Smart Chips */}
@@ -221,10 +220,10 @@ export function ProductModal({ product, isOpen, onClose }: ProductModalProps) {
                                 <button
                                     onClick={handleAddToCart}
                                     disabled={!product.stock}
-                                    className="w-full py-4 bg-[var(--foreground)] text-[var(--background)] font-black uppercase tracking-widest hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full py-4 bg-black text-white font-medium uppercase tracking-widest hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <ShoppingBag size={18} />
-                                    {product.stock ? 'Add to Cart' : 'Out of Stock'}
+                                    <ShoppingBag size={14} />
+                                    {product.stock ? 'ADD TO CART' : 'OUT OF STOCK'}
                                 </button>
                             </div>
                         </motion.div>

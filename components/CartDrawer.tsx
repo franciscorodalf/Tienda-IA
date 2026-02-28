@@ -31,7 +31,7 @@ export function CartDrawer() {
                     >
                         {/* Header */}
                         <div className="p-6 border-b border-[var(--muted)] flex items-center justify-between">
-                            <h2 className="text-xl font-black uppercase tracking-tighter text-[var(--foreground)] flex items-center gap-2">
+                            <h2 className="text-sm font-medium uppercase tracking-widest text-[var(--foreground)] flex items-center gap-2">
                                 <ShoppingBag size={20} />
                                 Cart ({items.length})
                             </h2>
@@ -105,13 +105,13 @@ export function CartDrawer() {
 
                         {/* Footer */}
                         <div className="p-6 border-t border-[var(--muted)] bg-[var(--background)]">
-                            <div className="flex justify-between items-center mb-6 text-lg font-bold uppercase tracking-wider text-[var(--foreground)]">
+                            <div className="flex justify-between items-center mb-6 text-sm font-medium uppercase tracking-widest text-[var(--foreground)]">
                                 <span>Subtotal</span>
                                 <span>${cartTotal.toFixed(2)}</span>
                             </div>
                             <button
                                 disabled={items.length === 0}
-                                className="w-full py-4 bg-[var(--foreground)] text-[var(--background)] uppercase font-black tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full py-4 bg-black text-white uppercase text-xs font-medium tracking-widest hover:bg-gray-800 transition-colors disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
                             >
                                 Checkout
                             </button>
